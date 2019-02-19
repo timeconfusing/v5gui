@@ -1,0 +1,6 @@
+compile_commands.json
+/.vscode
+/bin
+*.o
+*.bin
+*.elf
