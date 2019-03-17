@@ -4,7 +4,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
-//#define USE_BTMN_GUI
+//#define USE_BTNM_GUI
 
 #ifdef USE_BTNM_GUI
 static lv_obj_t *g_btn_region; //tab view region of the screen
