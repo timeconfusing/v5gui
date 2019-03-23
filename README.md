@@ -1,11 +1,11 @@
 # v5gui
 Example LVGL GUI code for Vex V5 Brain
 
-The GUI consists of two regions: the Button Region and the Status Region. Inside the Status region is a Label object. This split is done to make sure the status information can be display if the buttons exceed the size of the button region.
-
 There are two examples included. They are selected by the #define USE_BTNM_GUI. If uncommented the demo uses individual buttons that can be placed anywhere on the screen. If commnted out it uses a button matrix.
 
-Individual buttons are placed on the screen using using lv_obj_align. All buttons use one callback function defined by lv_btn_set_action. The lv_obj_set_free_num assigns a numeric value to the button pressed for the callback function to use.
+In the first example, individual buttons are placed on the screen using using lv_obj_align. All buttons use one callback function defined by lv_btn_set_action. The lv_obj_set_free_num assigns a numeric value to the button pressed for the callback function to use.
+
+In the second example, the GUI consists of two regions: the Button Region and the Status Region. Inside the Status region is a Label object. This split is done to make sure the status information can be display if the buttons exceed the size of the button region.
 
 The button matrix allow for fast definition of multiple rows and columns of buttons. The defintion of the matrix is as follows:
  
