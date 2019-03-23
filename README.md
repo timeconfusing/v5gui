@@ -16,5 +16,5 @@ The button matrix allow for fast definition of multiple rows and columns of butt
  
 The escape section prevents a press of the button being interpreted as a multipress of the button. The matrix is created by lv_btnm_set_map. The last character in the string for the button_map is what the callback function receives when pressed. The callback function is defined by lv_btnm_set_action.
 
-The Button Matrix looks like this when run in the LVGL PC Simulator.
-![Image of BTNM](https://github.com/timeconfusing/Images)
+
+![The Button Matrix looks like this when run in the LVGL PC Simulator.](https://raw.githubusercontent.com/timeconfusing/Images/master/LVGL-btnm.PNG)
