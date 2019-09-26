@@ -1,6 +1,16 @@
-compile_commands.json
-/.vscode
-/bin
+# Compiled Object files
 *.o
+*.obj
+
+# Executables
 *.bin
 *.elf
+
+# PROS
+bin/
+.vscode/
+compile_commands.json
+temp.log
+temp.errors
+*.ini
+.d/
