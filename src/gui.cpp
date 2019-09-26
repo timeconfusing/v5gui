@@ -82,7 +82,9 @@ void gui_3btn(void) {
 
  /*Create a normal button*/
  lv_obj_t * btn1 = lv_btn_create(g_btn_region, NULL);
- lv_obj_align(btn1, NULL, LV_ALIGN_IN_LEFT_MID, 50, 0);
+ lv_btn_set_style(btn1,LV_BTN_STYLE_REL,&lv_style_btn_rel);
+ lv_btn_set_style(btn1,LV_BTN_STYLE_PR,&lv_style_btn_pr);
+ lv_obj_align(btn1, NULL, LV_ALIGN_IN_LEFT_MID, 30, 0);
  lv_obj_set_free_num(btn1, 1);   /*Set a unique number for the button*/
  lv_btn_set_action(btn1, LV_BTN_ACTION_CLICK, btn_click_action);
 
@@ -91,7 +93,7 @@ void gui_3btn(void) {
  lv_label_set_text(label, "Sel 1");
 
  /*Copy the button and set toggled state. (The release action is copied too)*/
- lv_obj_t * btn2 = lv_btn_create(g_btn_region, NULL);
+ lv_obj_t * btn2 = lv_btn_create(g_btn_region, btn1);
  lv_obj_align(btn2, NULL, LV_ALIGN_CENTER, 0, 0);
  lv_obj_set_free_num(btn2, 2);               /*Set a unique number for the button*/
  lv_btn_set_action(btn2, LV_BTN_ACTION_CLICK, btn_click_action);
@@ -101,8 +103,8 @@ void gui_3btn(void) {
  lv_label_set_text(label, "Sel 2");
 
  /*Copy the button and set inactive state.*/
- lv_obj_t * btn3 = lv_btn_create(g_btn_region, NULL);
- lv_obj_align(btn3, NULL, LV_ALIGN_IN_RIGHT_MID, -50, 0);
+ lv_obj_t * btn3 = lv_btn_create(g_btn_region, btn1);
+ lv_obj_align(btn3, NULL, LV_ALIGN_IN_RIGHT_MID, -30, 0);
  lv_obj_set_free_num(btn3, 3);                  /*Set a unique number for the button*/
  lv_btn_set_action(btn3, LV_BTN_ACTION_CLICK, btn_click_action);
 
@@ -167,15 +169,69 @@ void gui_switch(void) {
 
   lv_obj_t * sw1 = lv_sw_create(g_btn_region, NULL);
   lv_obj_set_free_num(sw1, 1);                  /*Set a unique number for the object*/
-  set_switch_style(sw1);
+  set_switch_style(sw1);  // style is in separate function for cleaner code
   lv_obj_align(sw1, NULL, LV_ALIGN_IN_LEFT_MID, 50, 0);
 
-  lv_obj_t * sw2 = lv_sw_create(g_btn_region, sw1);
+  lv_obj_t * sw2 = lv_sw_create(g_btn_region, sw1); // copy sw1 to sw2
   lv_obj_set_free_num(sw2, 2);                  /*Set a unique number for the object*/
   lv_obj_align(sw2, NULL, LV_ALIGN_IN_RIGHT_MID, -50, 0);
 
+  // both switches use the same call back function
   lv_sw_set_action(sw1, switch_action);
   lv_sw_set_action(sw2, switch_action);
+}
+
+lv_obj_t * gauge1;
+lv_obj_t * gauge2;
+lv_obj_t * gauge3;
+
+void gui_gauges(void) {
+  /*Create a style*/
+  static lv_style_t style;
+  lv_style_copy(&style, &lv_style_pretty_color);
+  style.body.main_color = LV_COLOR_HEX3(0x666);     /*Line color at the beginning*/
+  style.body.grad_color =  LV_COLOR_HEX3(0x666);    /*Line color at the end*/
+  style.body.padding.hor = 10;                      /*Scale line length*/
+  style.body.padding.inner = 8 ;                    /*Scale label padding*/
+  style.body.border.color = LV_COLOR_HEX3(0x333);   /*Needle middle circle color*/
+  style.line.width = 2;
+  style.text.color = LV_COLOR_HEX3(0x333);
+  style.line.color = LV_COLOR_RED;                  /*Line color after the critical value*/
+
+  /*Describe the color for the needles*/
+
+  /*Create a gauge*/
+  lv_coord_t gauge_size =  lv_obj_get_width(lv_scr_act())/3-10;
+  gauge1 = lv_gauge_create(lv_scr_act(), NULL);
+  lv_gauge_set_style(gauge1, &style);
+  lv_obj_set_size(gauge1, gauge_size, gauge_size);
+  lv_obj_align(gauge1, NULL, LV_ALIGN_IN_TOP_LEFT, 5, 10);
+
+  /*Create a gauge*/
+  gauge2 = lv_gauge_create(lv_scr_act(), NULL);
+  lv_gauge_set_style(gauge2, &style);
+  lv_obj_set_size(gauge2, gauge_size, gauge_size);
+  lv_obj_align(gauge2, NULL, LV_ALIGN_IN_TOP_MID, 0, 10);
+
+  /*Create a gauge*/
+  gauge3 = lv_gauge_create(lv_scr_act(), NULL);
+  lv_gauge_set_style(gauge3, &style);
+  lv_obj_set_size(gauge3, gauge_size, gauge_size);
+  lv_obj_align(gauge3, NULL, LV_ALIGN_IN_TOP_RIGHT, -5, 10);
+
+}
+
+void gauge_update(void* param) {
+  /*Set the values*/
+  int i=23;
+  while (1) {
+    lv_gauge_set_value(gauge1, 0, 1*i%100);
+    lv_gauge_set_value(gauge1, 1, i%2?40:50);
+    lv_gauge_set_value(gauge2, 0, 2*i%100);
+    lv_gauge_set_value(gauge3, 0, 3*i%100);
+    pros::Task::delay(1000);
+    i++;
+  }
 }
 
 uint8_t demo_id = 0;
@@ -204,13 +260,15 @@ static lv_res_t demo_click_action(lv_obj_t * btn) {
     gui_btnm();
   } else if (demo_id==2) {
     gui_3btn();
-  } else {
+  } else if (demo_id==3) {
     gui_switch();
+  } else {
+    gui_gauges();
+    pros::Task telm_task (gauge_update, NULL, TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "guage");
   }
 
    return LV_RES_OK; /*Return OK if the button is not deleted*/
 }
-
 
 void gui(void) {
 
@@ -220,9 +278,13 @@ void gui(void) {
   lv_label_set_text(label, "Selection A Demo");
   lv_obj_align(label, NULL, LV_ALIGN_IN_TOP_MID, 0, 5);
 
+  lv_coord_t btn_width =  (lv_obj_get_width(lv_scr_act())/4)-10;
+  lv_coord_t btn_height =  btn_width/2;
+
   /*Create a normal button*/
   lv_obj_t * btn1 = lv_btn_create(lv_scr_act(), NULL);
-  lv_obj_align(btn1, NULL, LV_ALIGN_IN_LEFT_MID, 0, 0);
+  lv_obj_set_size(btn1, btn_width, btn_height);
+  lv_obj_align(btn1, NULL, LV_ALIGN_IN_LEFT_MID, 8, 0);
   lv_obj_set_free_num(btn1, 1);   /*Set a unique number for the button*/
   lv_btn_set_action(btn1, LV_BTN_ACTION_CLICK, demo_click_action);
 
@@ -232,7 +294,8 @@ void gui(void) {
 
   /*Copy the button and set toggled state. (The release action is copied too)*/
   lv_obj_t * btn2 = lv_btn_create(lv_scr_act(), NULL);
-  lv_obj_align(btn2, NULL, LV_ALIGN_CENTER, 0, 0);
+  lv_obj_set_size(btn2, btn_width, btn_height);
+  lv_obj_align(btn2, NULL, LV_ALIGN_CENTER, -btn_width/2-4, 0);
   lv_obj_set_free_num(btn2, 2);               /*Set a unique number for the button*/
   lv_btn_set_action(btn2, LV_BTN_ACTION_CLICK, demo_click_action);
 
@@ -242,11 +305,23 @@ void gui(void) {
 
   /*Copy the button and set toggled state. (The release action is copied too)*/
   lv_obj_t * btn3 = lv_btn_create(lv_scr_act(), NULL);
-  lv_obj_align(btn3, NULL, LV_ALIGN_IN_RIGHT_MID, 0, 0);
+  lv_obj_set_size(btn3, btn_width, btn_height);
+  lv_obj_align(btn3, NULL, LV_ALIGN_CENTER, btn_width/2+4, 0);
   lv_obj_set_free_num(btn3, 3);               /*Set a unique number for the button*/
   lv_btn_set_action(btn3, LV_BTN_ACTION_CLICK, demo_click_action);
 
   /*Add a label to the toggled button*/
   label = lv_label_create(btn3, NULL);
   lv_label_set_text(label, "SWITCH");
+
+  /*Copy the button and set toggled state. (The release action is copied too)*/
+  lv_obj_t * btn4 = lv_btn_create(lv_scr_act(), NULL);
+  lv_obj_set_size(btn4, btn_width, btn_height);
+  lv_obj_align(btn4, NULL, LV_ALIGN_IN_RIGHT_MID, -8, 0);
+  lv_obj_set_free_num(btn4, 4);               /*Set a unique number for the button*/
+  lv_btn_set_action(btn4, LV_BTN_ACTION_CLICK, demo_click_action);
+
+  /*Add a label to the toggled button*/
+  label = lv_label_create(btn4, NULL);
+  lv_label_set_text(label, "GUAGE");
 }
